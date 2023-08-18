@@ -3,7 +3,7 @@ function [w_cov, theta_est, epsilon_est, epsilon_particles, theta_particles] = c
 
 % Compute epsilon weights
 for m = 1 : M
-    ln_w_cov(m) = -0.5*log(2*pi*var_A) - 0.5*sum(  (y - epsilon_particles*theta_particles(m)).^2)/var_A;
+    ln_w_cov(m) = -0.5*log(2*pi*var_A) - 0.5*sum(  (y - epsilon_particles*theta_particles(m)).^2 )/var_A;
 end
 
 % Scale and normalize
