@@ -8,7 +8,7 @@ load epsilons_mat.mat
 
 % System specifications
 tp_idx = 45;
-cut_off = 0.33;
+cut_off = 0.3;
 
 % Data
 time = time_mat_area{1};
@@ -57,7 +57,7 @@ R = 4;
 
 
 % Run GIBBS
-J = 1000;
+J = 150;
 J0 = round(J/2);
 for j = 1:J
 
@@ -109,7 +109,7 @@ plot(time, theta_chain(J,:), 'Color', 'k', 'LineWidth',2)
 title('Coverage', 'FontSize', 15)
 
 figure;
-plot(time, epsilon_est)
+plot(time, epsilon_est.*theta_est)
 hold on
 plot(time, y)
 title('Epsilon', 'FontSize', 15)
