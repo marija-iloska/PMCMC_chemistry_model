@@ -4,7 +4,7 @@ clc
 
 % Particle Metropolis within Gibbs
 load area_ref490.mat
-load expected_coverage.mat
+load epsilons_mat.mat
 
 % System specifications
 tp_idx = 45;
@@ -14,19 +14,17 @@ cut_off = 0.33;
 time = time_mat_area{1};
 T = length(time);
 y = area{1};
-%y(y<0) = 10e-4;
 
 % Some priors
 eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(1);
 
 % Number of particles
-M = 200;
+M = 100;
 
 
 % Noise
 var_A = (std(y(T-10:T)))^2;
 var = [0.0025, 0.0025, 0.0025, 0.0025];
-
 
 
 a_low = 0;
@@ -81,6 +79,11 @@ for j = 1:J
 
     end
 
+    alpha_A = 3.5;
+    beta_A = var_A + 0.5*sum( (y - theta_sample'.*epsilon_est).^2 );
+    var_a(j) = 1./gamrnd(alpha_A, 1./beta_A);
+    
+
 end
 
 % Get estimates
@@ -89,7 +92,7 @@ theta_est = mean(theta_chain(J0:J, :),1);
 figure;
 plot(time, theta_est)
 hold on
-plot(time, theta_chain(J0,:), 'Color', 'b', 'LineWidth',2)
+plot(time, theta_chain(10,:), 'Color', 'b', 'LineWidth',2)
 hold on
 plot(time, theta_chain(J,:), 'Color', 'k', 'LineWidth',2)
 title('Coverage', 'FontSize', 15)
@@ -128,3 +131,5 @@ hold on
 plot(bchain(:,4), 'linewidth', 1)
 title('Chain b', 'FontSize', 15)
 
+figure;
+plot(var_a)

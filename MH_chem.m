@@ -10,7 +10,7 @@ x = [a; b];
 for i = 1 : I
 
         % Propose sample for a
-        [a_proposed] = pertrnd(a_low, x_old(1), 0.99);
+        [a_proposed] = pertrnd(a_low, x_old(1), a_high);
         ln_q_star_a  = logpertpdf(a_proposed, a_low, x_old(1), a_high);
         ln_q_old_a  = logpertpdf(x_old(1), a_low, a_proposed, a_high);
         

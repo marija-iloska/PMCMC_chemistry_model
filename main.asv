@@ -4,7 +4,7 @@ clc
 
 % Particle Metropolis within Gibbs
 load area_ref490.mat
-load expected_coverage.mat
+load epsilons_mat.mat
 
 % System specifications
 tp_idx = 45;
@@ -14,7 +14,6 @@ cut_off = 0.33;
 time = time_mat_area{1};
 T = length(time);
 y = area{1};
-%y(y<0) = 10e-4;
 
 % Some priors
 eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(1);
@@ -25,7 +24,7 @@ M = 200;
 
 % Noise
 var_A = (std(y(T-10:T)))^2;
-var = 0.0025;
+var = [0.0025, 0.0025, 0.0025, 0.0025];
 
 
 
@@ -33,7 +32,7 @@ a_low = 0;
 a_high = 1;
 
 theta_max = [0.5, 0.5, 0.5, 0.5];
-theta_min = [0, 0.01, 0.01, 0];
+theta_min = [0, 0, 0, 0];
 
 
 % System specifications
@@ -45,18 +44,18 @@ b_low = -a.*theta_min;
 b_high = 0.5 - a.*theta_max;
 mu = (b_high + b_low)/2;
 
-b = pertrnd( b_low, mu, b_high);
+b = pertrnd(b_low, mu, b_high);
 
 
 
 % Metropolis settings
 I = 1;
-tp_AB = [5, 165];
+R = 4;
+var_a = var_A;
 
-R = length(regions);
 
 % Run GIBBS
-J = 100;
+J = 200;
 J0 = round(J/2);
 for j = 1:J
     [theta_sample, epsilon_est] = pf_chem(y, time, sys_specs, bounds, a, b, M);
@@ -64,7 +63,12 @@ for j = 1:J
    
   
     % Sample for each region
-    tp_AB = find(theta_sample)
+    tp_AB = find(theta_sample > cut_off);
+    if (isempty(tp_AB))
+        tp_AB = [5, 80];
+    else
+        tp_AB = [tp_AB(1), tp_AB(end)-1];
+    end
     regions = {1 : tp_AB(1), tp_AB(1)+1 : tp_idx, tp_idx+1 : tp_AB(2), tp_AB(2)+1 : T-1 };
     for r = 1:R
     
@@ -76,6 +80,11 @@ for j = 1:J
         bchain(j,r) = x(2,end);
 
     end
+
+    temp = gamrnd(2, 1./var_A);
+    var_a = 1./temp;
+    alpha_A = 2 + 0.5;
+    beta_A = var_A + 0.5*sum( (y - theta_sample.*epsilon_est).^2 );
 
 end
 
@@ -123,4 +132,6 @@ plot(bchain(:,3), 'linewidth', 1)
 hold on
 plot(bchain(:,4), 'linewidth', 1)
 title('Chain b', 'FontSize', 15)
+
+
 
