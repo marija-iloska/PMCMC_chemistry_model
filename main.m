@@ -17,7 +17,7 @@ y = area{1};
 eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(1);
 
 % Number of particles
-M = 50;
+M = 500;
 
 
 % Noise
@@ -39,10 +39,10 @@ b([2,3]) = unifrnd(-a([2,3])*cut_off, 0.5 - a([2,3])*0.5);
 
 
 % Run PF;
-J = 500;
+J = 100;
 R = 4;
 for j = 1:J
-    [theta_est, epsilon_est] = pf_chem(y, time, sys_specs, a, b, M);
+    [theta_est(j,:), epsilon_est] = pf_chem(y, time, sys_specs, a, b, M);
     
     
     % Metropolis settings
@@ -63,9 +63,14 @@ for j = 1:J
 
 end
 
+
+
 figure;
 plot(time, theta_est)
 hold on
+plot(time, theta_est(1,:), 'Color', 'b', 'LineWidth',2)
+hold on
+plot(time, theta_est(J,:), 'Color', 'k', 'LineWidth',2)
 plot(time, epsilon_est)
 hold on
 plot(time, y)

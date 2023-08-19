@@ -11,7 +11,7 @@ theta_particles = betarnd(1,1,1,M)/2;
 epsilon_particles = exprnd(0.1, 1, M);
 theta_est(1) = mean(theta_particles);
 epsilon_est(1) = mean(epsilon_particles);
-
+ln_w_eps = log(ones(1,M)/M);
 
 for t = 2:T
 
@@ -27,7 +27,7 @@ for t = 2:T
     epsilon_particles = exprnd(mean_eps{r}, 1,M);
 
     % Compute epsilon weights
-    [w_cov, theta_est(t), epsilon_est(t), epsilon_particles] = compute_weights(y(t), epsilon_particles, theta_particles, var_A, M);
+    [w_cov, ln_w_eps, theta_est(t), epsilon_est(t), epsilon_particles] = compute_weights(y(t), epsilon_particles, theta_particles, var_A, M, ln_w_eps);
 
     % Resample
     idx_cov = datasample(1:M, 1, 'Weights', w_cov);
