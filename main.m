@@ -33,7 +33,7 @@ a_low = 0;
 a_high = 1;
 
 theta_max = [0.5, 0.5, 0.5, 0.5];
-theta_min = [0, 0.005, 0.005, 0];
+theta_min = [0, 0, 0, 0];
 
 
 % System specifications
@@ -55,7 +55,7 @@ R = 4;
 
 
 % Run GIBBS
-J = 100;
+J = 200;
 J0 = round(J/2);
 for j = 1:J
     [theta_sample, epsilon_est] = pf_chem(y, time, sys_specs, bounds, a, b, M);
