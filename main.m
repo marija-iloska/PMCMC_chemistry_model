@@ -17,11 +17,12 @@ y = area{1};
 eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(1);
 
 % Number of particles
-M = 500;
+M = 200;
 
 
 % Noise
-var_A = 0.01;
+%var_A = 0.01;
+var_A = (std(y(T-10:T)));
 var = 0.005;
 
 % System specifications
@@ -33,13 +34,20 @@ tp_AB = [4, 270];
 a_low = 0;
 a_high = 0.5;
 
+theta_r = [cut_off, 0.5, 0.5, cut_off];
+lim = [0, cut_off, cut_off, 0];
+
 a = unifrnd(a_low, a_high, 1, 4);
-b = unifrnd(0, cut_off*(1 - a));
-b([2,3]) = unifrnd(-a([2,3])*cut_off, 0.5 - a([2,3])*0.5);
+b_low = -a.*lim;
+b_high = 0.5 - a.*theta_r;
+mu = (b_high - b_low)/2;
+
+b = pertrnd( b_low, mu, b_high);
+
 
 
 % Run PF;
-J = 100;
+J = 500;
 R = 4;
 for j = 1:J
     [theta_est(j,:), epsilon_est] = pf_chem(y, time, sys_specs, a, b, M);
@@ -57,7 +65,7 @@ for j = 1:J
         b(r) = mean(x(2, end));
 
         achain(j,r) = x(1,end);
-        bchain(j,r) = x(2, end);
+        bchain(j,r) = x(2,end);
 
     end
 
@@ -66,7 +74,7 @@ end
 
 
 figure;
-plot(time, theta_est)
+plot(time, mean(theta_est(900:J, :),1))
 hold on
 plot(time, theta_est(1,:), 'Color', 'b', 'LineWidth',2)
 hold on
@@ -74,6 +82,10 @@ plot(time, theta_est(J,:), 'Color', 'k', 'LineWidth',2)
 plot(time, epsilon_est)
 hold on
 plot(time, y)
+
+
+figure;
+plot(mean(theta_est(400:J,:),1))
 
 figure;
 plot(achain(:,1))

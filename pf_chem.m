@@ -7,7 +7,7 @@ T = length(y);
 [var, var_A, tp_idx, cut_off, eps_sat, cov_sat] = sys_specs{:};
 
 % Initialize particles
-theta_particles = betarnd(1,1,1,M)/2;
+theta_particles = betarnd(0.01,1,1,M)/2;
 epsilon_particles = exprnd(0.1, 1, M);
 theta_est(1) = mean(theta_particles);
 epsilon_est(1) = mean(epsilon_particles);
