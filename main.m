@@ -22,8 +22,8 @@ M = 200;
 
 % Noise
 %var_A = 0.01;
-var_A = (std(y(T-10:T)));
-var = 0.005;
+var_A = (std(y(T-10:T)))^2;
+var = 0.05;
 
 % System specifications
 sys_specs = {var, var_A, tp_idx, cut_off, eps_sat, cov_sat(1)};
@@ -47,7 +47,8 @@ b = pertrnd( b_low, mu, b_high);
 
 
 % Run PF;
-J = 500;
+J = 50;
+J0 = round(J/2);
 R = 4;
 for j = 1:J
     [theta_est(j,:), epsilon_est] = pf_chem(y, time, sys_specs, a, b, M);
@@ -74,7 +75,7 @@ end
 
 
 figure;
-plot(time, mean(theta_est(900:J, :),1))
+plot(time, mean(theta_est(J0:J, :),1))
 hold on
 plot(time, theta_est(1,:), 'Color', 'b', 'LineWidth',2)
 hold on
@@ -85,7 +86,7 @@ plot(time, y)
 
 
 figure;
-plot(mean(theta_est(400:J,:),1))
+plot(mean(theta_est(J0:J,:),1))
 
 figure;
 plot(achain(:,1))

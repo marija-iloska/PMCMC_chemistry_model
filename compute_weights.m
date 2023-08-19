@@ -16,7 +16,7 @@ theta_est = mean(theta_particles);
 
 
 % EPS weights
-ln_w_eps = ln_w_eps  -0.5*log(2*pi*var_A) - 0.5*( (y - epsilon_particles*theta_est).^2)/var_A;
+ln_w_eps = ln_w_eps  -0.5*log(2*pi*var_A) - 0.5*( (y - epsilon_particles.*theta_particles).^2)/var_A;
 
 
 % Sample one epsilon particle
@@ -24,8 +24,8 @@ w_eps = exp(ln_w_eps - max(ln_w_eps));
 w_eps = w_eps./sum(w_eps);
 
 epsilon_est = sum(epsilon_particles.*w_eps);
-% idx_eps = datasample(1:M, M, 'Weights', w_eps);
-% epsilon_particles = epsilon_particles(idx_eps);
+idx_eps = datasample(1:M, M, 'Weights', w_eps);
+epsilon_particles = epsilon_particles(idx_eps);
 
 
 
