@@ -9,7 +9,7 @@ x = [a; b];
 for i = 1 : I
 
         % Propose sample for a
-        [a_proposed] = pertrnd(a_low, (a_high + a_low)/2, a_high);
+        [a_proposed] = pertrnd(a_low, x_old(1), a_high);
         ln_q_star_a  = logpertpdf(a_proposed, a_low, x_old(1), a_high);
         ln_q_old_a  = logpertpdf(x_old(1), a_low, a_proposed, a_high);
         
@@ -43,14 +43,13 @@ for i = 1 : I
 
         % LOG proposal ratio
         AR2 = ln_q_old_b + ln_q_old_a - ln_q_star_b - ln_q_star_a;
-        
+        %AR2 = ln_q_old_a  - ln_q_star_a;
+        if (isreal(AR2) == 0)
+            AR2 = 0;
+        end
         
         % Acceptance ratio
         AR = exp(AR1 + AR2);
-
-        if (isreal(AR) == 0)
-            AR = 0;
-        end
 
         % Accept or Reject
         if (rand < AR)

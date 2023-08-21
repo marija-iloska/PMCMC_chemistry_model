@@ -21,7 +21,7 @@ y = area{t_idx};
 eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(t_idx);
 
 % Number of particles
-M = 100;
+M = 70;
 
 
 % Noise
@@ -117,6 +117,10 @@ plot(time, epsilon_est.*theta_est)
 hold on
 plot(time, y)
 title('Epsilon', 'FontSize', 15)
+
+figure;
+plot(time, epsilon_est)
+hold on
 
 figure;
 test = mean(theta_chain(end,:),1);
