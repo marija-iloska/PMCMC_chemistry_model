@@ -50,6 +50,7 @@ for t = 2:T
     
 end
 
+% Take one sample of entire Time horizon
 idx = datasample(1:M, 1, 'Weights', w_cov);
 theta_sample = theta_store(:, idx);
 

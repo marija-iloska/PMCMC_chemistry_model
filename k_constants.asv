@@ -1,0 +1,24 @@
+function [] = k_constants()
+
+dt = 0.067;
+
+% Region 4
+k4_XO = (1 - a4)/dt;
+c4 = b4/dt;
+
+% Region I
+k1_OX = (1 - a1 - k4_XO*dt)/(P*dt);
+c1 = b1/dt - k1_OX*P*M;
+
+% Region III
+k3_XO = (1 - a3)/dt;
+c3 = b3/dt;
+
+% Region II
+k2_OX = (1 - a2 - k3_XO*dt)/(P*dt);
+c1 = b1/dt - k2_OX*P*M;
+
+
+
+
+end

@@ -2,17 +2,12 @@ function [w_cov,w_eps, theta_est, epsilon_particles, theta_particles] = compute_
 
 
 % Compute epsilon weights
-for m = 1 : M
-    ln_w_cov(m) = -0.5*log(2*pi*var_A) - 0.5*sum(  (y - mean(epsilon_particles)*theta_particles(m)).^2 )/var_A;
-end
+ln_w_cov = -0.5*log(2*pi*var_A) - 0.5*(  (y - mean(epsilon_particles)*theta_particles).^2 )/var_A;
 
 % Scale and normalize
 w_cov = exp(ln_w_cov - max(ln_w_cov));
 w_cov = w_cov./sum(w_cov);
 
-if ( sum(isnan(w_cov)) > 0)
-    disp('stop')
-end
 
 idx_cov = datasample(1:M, M, 'Weights', w_cov);
 theta_particles = theta_particles(idx_cov);
