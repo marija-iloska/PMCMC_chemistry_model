@@ -8,15 +8,17 @@ load epsilons_mat.mat
 
 % System specifications
 tp_idx = 45;
-cut_off = 0.3;
+cut_off = 0.33;
+
+t_idx = 1;
 
 % Data
-time = time_mat_area{1};
+time = time_mat_area{t_idx};
 T = length(time);
-y = area{1};
+y = area{t_idx};
 
 % Some priors
-eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(1);
+eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(t_idx);
 
 % Number of particles
 M = 100;
@@ -91,6 +93,8 @@ for j = 1:J
     var_a(j) = 1./gamrnd(1, beta_A);
     sys_specs = {var_a(j), eps_sat, cov_sat(1)};
 
+    % Sample ks
+    [c(j,:), kOX(j,:), kXO(j,:), ~,~] = k_constants(a, b);
     
 
 end
@@ -144,3 +148,18 @@ title('Chain b', 'FontSize', 15)
 
 figure;
 plot(var_a)
+
+
+figure
+histogram(kXO(:,1))
+figure
+histogram(kXO(:,2))
+figure
+histogram(kXO(:,3))
+figure
+histogram(kXO(:,4))
+
+figure
+histogram(kOX(:,1))
+figure
+histogram(kOX(:,2))

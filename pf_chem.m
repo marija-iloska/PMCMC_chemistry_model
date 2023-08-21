@@ -18,8 +18,8 @@ ln_w_eps = log(ones(1,M)/M);
 for t = 2:T
 
     % Which region are we in
-    r = region(theta_est(t-1), time(t), tp_idx, cut_off);
-    mean_eps = {0.5, eps_sat, epsilon_est(t-1), 0.5};
+    r = region(theta_est(t-1), time(t), time(tp_idx), cut_off);
+    mean_eps = {0.5, eps_sat, eps_sat, 0.5};
 
     % Propose particles
     theta_mean = a(r)*theta_particles + b(r);
