@@ -5,6 +5,7 @@ clc
 % Particle Metropolis within Gibbs
 load area_ref490.mat
 load epsilons_mat.mat
+load temps_info.mat
 
 % System specifications
 tp_idx = 45;
@@ -17,7 +18,8 @@ T = length(time);
 y = area{idx_T};
 
 % Some priors
-eps_sat = mean(y(tp_idx - 30 : tp_idx))/cov_sat(idx_T);
+eps_sat = mean(y(tp_idx - 20 : tp_idx))/cov_sat(idx_T);
+eps_exp = [0.5, 0.5, 0.6, 0.6, 0.5, 0.5];
 
 % Number of particles
 M = 100;
@@ -34,11 +36,11 @@ T1 = length(y1);
 T2 = length(y2);
 
 
-% Bounds for parameter a3 and a4
+% Bounds for parameter a1 and a2
 a_low = 0.001*ones(1,2);
 a_high = 0.99*ones(1,2);
 
-% Sample param a3 and a4
+% Sample param a1 and a2
 a1 = unifrnd(a_low, a_high);
 
 % Bounds for state theta (coverage)
@@ -46,7 +48,7 @@ theta_max = 0.5;
 theta_min = 0;
 
 % System specifications
-sys_specs = {var_A, eps_sat, cov_sat(1)};
+sys_specs = {var_A, eps_sat, cov_sat(idx_T), eps_exp(idx_T)};
 bounds = {tp_idx, cut_off, theta_max, theta_min};
 
 
@@ -62,7 +64,7 @@ b1 = pertrnd(b_low, mu, b_high);
 I = 1;
 
 % Run GIBBS
-J = 3000;
+J = 500;
 J0 = round(J/2);
 
 for j = 1:J
@@ -78,7 +80,7 @@ for j = 1:J
     tp_AB = tp_AB(end);
     regions = {1 : tp_AB, tp_AB +1 : tp_idx};
     for r = 1:2   
-        x = MH_chem(theta1_chain(j,:), I, r, regions, a1(r), b1(r), a_low(r), a_high(r), bounds, cov_sat(1));
+        x = MH_chem(theta_sample, I, r, regions, a1(r), b1(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 1);
         a1chain(j,r) = x(1);
         b1chain(j,r) = x(2);
         a1(r) = x(1);
@@ -88,7 +90,7 @@ for j = 1:J
     % Posterior for measurement variance
     beta_A = 1./var_A + 0.5*sum( (y1' - theta_sample.*epsilon_sample).^2 );
     var_a1(j) = 1./gamrnd(1, beta_A);
-    sys_specs = {var_a1(j), eps_sat, cov_sat(1)};
+    sys_specs = {var_a1(j), eps_sat, cov_sat(idx_T), eps_exp(idx_T)};
     
     
 end
@@ -118,13 +120,15 @@ for j = 1:J
     epsilon2_chain(j,:) = epsilon_sample;
    
   
+    if (j < 2)
     % Sample model parameters a and b for all regions
-    tp_AB = find(theta_sample > cut_off);
-    tp_AB = tp_AB(end);
-    regions = {1 : tp_AB, tp_AB +1 : T2};
+        tp_AB = find(theta_sample < cut_off);
+        tp_AB = tp_AB(1);
+        regions = {1 : tp_AB, tp_AB +1 : T2};
+    end
     for r = 1:2
     
-        x = MH_chem(theta2_chain(j,:), I, r, regions, a2(r), b2(r), a_low(r), a_high(r), bounds, cov_sat(1));
+        x = MH_chem(theta_sample, I, r, regions, a2(r), b2(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 2);
         a2chain(j,r) = x(1);
         b2chain(j,r) = x(2);
         a2(r) = x(1);
@@ -134,7 +138,7 @@ for j = 1:J
     % Posterior for measurement variance
     beta_A = 1./var_A + 0.5*sum( (y2' - theta_sample.*epsilon_sample).^2 );
     var_a2(j) = 1./gamrnd(1, beta_A);
-    sys_specs = {var_a2(j), eps_sat, cov_sat(1)};
+    sys_specs = {var_a2(j), eps_sat, cov_sat(idx_T), eps_exp(idx_T)};
 
     % k constants samples
     [c2(j,:), kXO(j,:)] = k_des(a2, b2);
@@ -167,9 +171,9 @@ epsilon_est = [epsilon1_est epsilon1_est(end), epsilon2_est(2:end)];
 
 
 figure;
-plot(time1, theta1_chain(j,:), 'Color', 'b', 'LineWidth',2)
+plot(time1, theta1_chain(1,:), 'Color', 'b', 'LineWidth',2)
 hold on
-plot(time2(2:end), theta2_chain(j,2:end), 'Color', 'k', 'LineWidth',2)
+plot(time2(2:end), theta2_chain(1,2:end), 'Color', 'k', 'LineWidth',2)
 hold on
 plot(time, theta_est, 'Linewidth',2)
 title('Coverage', 'FontSize', 15)
@@ -239,4 +243,8 @@ title('R1 Adsorption', 'FontSize', 15)
 figure;
 hist(kOX(J0:J,2))
 title('R2 Adsorption', 'FontSize', 15)
+
+
+% filename = join([temps_strings{idx_T}, 'k.mat']);
+% save(filename, 'kOX_est', "kXO_est")
 

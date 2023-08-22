@@ -1,26 +1,36 @@
-function [x] = MH_chem(y, I, r, regions, a,b, a_low, a_high, bounds, cov_sat)
+function [x] = MH_chem(y, I, r, regions, a,b, a_low, a_high, bounds, cov_sat, dat_choice)
 
 % Restore last values
 x_old = [a,b];
 x = [a; b];
 [~, ~, theta_max, theta_min] = bounds{:};
 
+if (dat_choice == 2)
+    rr = [2,1];
+else
+    rr = [1,2];
+end
+
+
+mu_a = (a_high + a_low)/2;
+
 % METROPOLIS HASTINGS
 for i = 1 : I
 
         % Propose sample for a
-        [a_proposed] = pertrnd(a_low, (a_high + a_low)/2, a_high);
-        ln_q_star_a  = logpertpdf(a_proposed, a_low, x_old(1), a_high);
-        ln_q_old_a  = logpertpdf(x_old(1), a_low, a_proposed, a_high);
+        
+        [a_proposed] = pertrnd(a_low, mu_a, a_high);
+        ln_q_star_a  = logpertpdf(a_proposed, a_low, mu_a, a_high);
+        ln_q_old_a  = logpertpdf(x_old(1), a_low, mu_a, a_high);
         
 
         % Compute parameters for pert pdf for b
         b_low = -a_proposed*theta_min;
         b_high = 0.5 - a_proposed.*theta_max;
-        mu = (b_high + b_low)/2;
+        mu_b = (b_high + b_low)/2;
 
         % Propose sample for b
-        [b_proposed] = pertrnd(b_low, mu, b_high);
+        [b_proposed] = pertrnd(b_low, mu_b, b_high);
         ln_q_star_b  = logpertpdf(b_proposed, b_low, x_old(2), b_high);
         ln_q_old_b  = logpertpdf(x_old(2), b_low, b_proposed, b_high);
         
@@ -28,7 +38,7 @@ for i = 1 : I
         x_proposed = [a_proposed, b_proposed];
 
         % Compute beta parameters
-        if (r == 2)
+        if (0)
             mu_proposed = cov_sat;
         else
             mu_proposed = a_proposed*y(regions{r}(1:end-1)) + b_proposed;
