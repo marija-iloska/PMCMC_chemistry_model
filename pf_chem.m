@@ -10,15 +10,17 @@ T = length(y);
 if (dat_choice == 2)
     rr = [1, 2];
     theta_mean = cov_sat*ones(1,M);
+    mean_eps = eps_sat;
 else
     rr = [2, 1];
     theta_mean = 0.1*ones(1,M);
+    mean_eps = eps_exp;
 end
 r=1;
 
 % Initialize particles
 theta_particles = pertrnd(theta_min, theta_mean, theta_max);
-epsilon_particles = exprnd(eps_exp, 1, M);
+epsilon_particles = exprnd(mean_eps, 1, M);
 theta_est(1) = mean(theta_particles);
 epsilon_est(1) = mean(epsilon_particles);
 ln_w_eps = log(ones(1,M)/M);

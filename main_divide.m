@@ -9,17 +9,18 @@ load temps_info.mat
 
 % System specifications
 tp_idx = 45;
-cut_off = 0.33;
-idx_T = 1;
+cut_off = 0.32;
+idx_T = 4;
 
 % Data
 time = time_mat_area{idx_T};
 T = length(time);
 y = area{idx_T};
+y(y < 0) = 10e-4;
 
 % Some priors
 eps_sat = mean(y(tp_idx - 20 : tp_idx))/cov_sat(idx_T);
-eps_exp = [0.5, 0.5, 0.6, 0.6, 0.5, 0.5];
+eps_exp = [0.5, 0.5, 0.6, 0.5, 0.7, 0.5];
 
 % Number of particles
 M = 100;
@@ -38,7 +39,7 @@ T2 = length(y2);
 
 % Bounds for parameter a1 and a2
 a_low = 0.001*ones(1,2);
-a_high = 0.99*ones(1,2);
+a_high = 0.999*ones(1,2);
 
 % Sample param a1 and a2
 a1 = unifrnd(a_low, a_high);
@@ -77,7 +78,7 @@ for j = 1:J
   
     % Sample model parameters a and b for all regions
     tp_AB = find(theta_sample < cut_off);
-    tp_AB = tp_AB(end);
+    tp_AB = tp_AB(end)-1;
     regions = {1 : tp_AB, tp_AB +1 : tp_idx};
     for r = 1:2   
         x = MH_chem(theta_sample, I, r, regions, a1(r), b1(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 1);
@@ -120,12 +121,10 @@ for j = 1:J
     epsilon2_chain(j,:) = epsilon_sample;
    
   
-    if (j < 2)
     % Sample model parameters a and b for all regions
-        tp_AB = find(theta_sample < cut_off);
-        tp_AB = tp_AB(1);
-        regions = {1 : tp_AB, tp_AB +1 : T2};
-    end
+    tp_AB = find(theta_sample < cut_off);
+    tp_AB = tp_AB(1);
+    regions = {1 : tp_AB+1, tp_AB +2 : T2};       
     for r = 1:2
     
         x = MH_chem(theta_sample, I, r, regions, a2(r), b2(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 2);
