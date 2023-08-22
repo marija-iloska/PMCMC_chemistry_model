@@ -10,7 +10,7 @@ load temps_info.mat
 % System specifications
 tp_idx = 45;
 cut_off = 0.32;
-idx_T = 4;
+idx_T = 1;
 
 % Data
 time = time_mat_area{idx_T};
@@ -65,7 +65,7 @@ b1 = pertrnd(b_low, mu, b_high);
 I = 1;
 
 % Run GIBBS
-J = 500;
+J = 2000;
 J0 = round(J/2);
 
 for j = 1:J
@@ -226,8 +226,8 @@ figure;
 hist(kXO(:,2))
 title('R4 Desorption', 'FontSize', 15)
 
-% figure;
-% plot(kXO(:,2))
+figure;
+plot(kXO(:,2))
 
 
 figure;
@@ -242,6 +242,18 @@ title('R1 Adsorption', 'FontSize', 15)
 figure;
 hist(kOX(J0:J,2))
 title('R2 Adsorption', 'FontSize', 15)
+
+figure;
+hist(c1(:,1))
+
+figure;
+hist(c1(:,2))
+
+figure;
+hist(c2(:,1))
+
+figure;
+hist(c2(:,2))
 
 
 % filename = join([temps_strings{idx_T}, 'k.mat']);

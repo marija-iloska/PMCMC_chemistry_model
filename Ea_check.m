@@ -27,11 +27,11 @@ idx = setdiff(1:N, [6]);
 R = 0.001987204258;
 
 
-[Ea4_des, A, Ea_SE, A_SE, ln_k, Rsq_Ea] = get_Ea(k2_desorb(idx), T(idx), R);
-[Ea3_des, A, Ea_SE, A_SE, ln_k, Rsq_Ea] = get_Ea(k1_desorb(idx), T(idx), R);
+[Ea4_des, A4_des, Ea4_SE, A4_SE, ln_k, Rsq_Ea] = get_Ea(k2_desorb(idx), T(idx), R);
+[Ea3_des, A3_des, Ea3_SE, A3_SE, ln_k, Rsq_Ea] = get_Ea(k1_desorb(idx), T(idx), R);
 
-[Ea2_ads, A, Ea_SE, A_SE, ln_k, Rsq_Ea] = get_Ea(k2_adsorb(idx), T(idx), R);
-[Ea1_ads, A, Ea_SE, A_SE, ln_k, Rsq_Ea] = get_Ea(k1_adsorb(idx), T(idx), R);
+[Ea2_ads, A2_ads, Ea2_SE, A2_SE, ln_k, Rsq_Ea] = get_Ea(k2_adsorb(idx), T(idx), R);
+[Ea1_ads, A1_ads, Ea1_SE, A1_SE, ln_k, Rsq_Ea] = get_Ea(k1_adsorb(idx), T(idx), R);
 
 
 % plot(k2_desorb)
