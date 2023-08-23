@@ -8,10 +8,11 @@ ln_w_cov = -0.5*log(2*pi*var_A) - 0.5*(  (y - mean(epsilon_particles)*theta_part
 w_cov = exp(ln_w_cov - max(ln_w_cov));
 w_cov = w_cov./sum(w_cov);
 
-
+theta_test = sum(w_cov.*theta_particles);
 idx_cov = datasample(1:M, M, 'Weights', w_cov);
 theta_particles = theta_particles(idx_cov);
 theta_est = mean(theta_particles);
+
 
 
 % EPS weights

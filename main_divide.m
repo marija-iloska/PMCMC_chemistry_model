@@ -9,24 +9,25 @@ load temps_info.mat
 
 % System specifications
 tp_idx = 45;
-cut_off = 0.32;
-idx_T = 1;
+cut_off = 0.33;
+idx_T = 2;
 
 % Data
 time = time_mat_area{idx_T};
 T = length(time);
 y = area{idx_T};
-y(y < 0) = 10e-4;
+%y(y < 0) = 10e-4;
 
 % Some priors
 eps_sat = mean(y(tp_idx - 20 : tp_idx))/cov_sat(idx_T);
-eps_exp = [0.5, 0.5, 0.6, 0.5, 0.7, 0.5];
+eps_exp = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
 
 % Number of particles
-M = 100;
+M = 200;
 
 % Noise
 var_A = (std(y(T-10:T)))^2;
+%var_A = 0.001;
 
 % Divide data
 y1 = y(1:tp_idx);
@@ -65,8 +66,8 @@ b1 = pertrnd(b_low, mu, b_high);
 I = 1;
 
 % Run GIBBS
-J = 2000;
-J0 = round(J/2);
+J = 500;
+J0 = 100;
 
 for j = 1:J
 
@@ -78,7 +79,7 @@ for j = 1:J
   
     % Sample model parameters a and b for all regions
     tp_AB = find(theta_sample < cut_off);
-    tp_AB = tp_AB(end)-1;
+    tp_AB = tp_AB(end)-2;
     regions = {1 : tp_AB, tp_AB +1 : tp_idx};
     for r = 1:2   
         x = MH_chem(theta_sample, I, r, regions, a1(r), b1(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 1);
@@ -123,8 +124,8 @@ for j = 1:J
   
     % Sample model parameters a and b for all regions
     tp_AB = find(theta_sample < cut_off);
-    tp_AB = tp_AB(1);
-    regions = {1 : tp_AB+1, tp_AB +2 : T2};       
+    tp_AB = tp_AB(1)+2;
+    regions = {1 : tp_AB, tp_AB+1 : T2};       
     for r = 1:2
     
         x = MH_chem(theta_sample, I, r, regions, a2(r), b2(r), a_low(r), a_high(r), bounds, cov_sat(idx_T), 2);
@@ -154,7 +155,7 @@ a2_est = mean(a2chain(J0:J,:), 1);
 b2_est = mean(b2chain(J0:J,:), 1);
 kXO_est = mean(kXO(J0:J,:), 1);
 
-
+% Estimate of Adsorption constants
 [c1_est, kOX_est] = k_ads(a1_est, b1_est, kXO_est);
 
 
@@ -208,30 +209,30 @@ plot(a2chain(:,2), 'linewidth', 1)
 hold on
 plot(b2chain(:,2), 'linewidth', 1)
 title('Chain R4', 'FontSize', 15)
-
+% 
 figure;
 plot(a1chain(:,2), 'linewidth', 1)
 hold on
 plot(b1chain(:,2), 'linewidth', 1)
 title('Chain R2', 'FontSize', 15)
+% 
+% figure;
+% plot(var_a1)
+% hold on
+% plot(var_a2)
+% title('Variance of Measurement Noise', 'FontSize', 15)
+% 
+% 
+% figure;
+% hist(kXO(J0:J,2))
+% title('R4 Desorption', 'FontSize', 15)
 
 figure;
-plot(var_a1)
-hold on
-plot(var_a2)
-title('Variance of Measurement Noise', 'FontSize', 15)
+plot(kXO(:,1))
 
 
 figure;
-hist(kXO(:,2))
-title('R4 Desorption', 'FontSize', 15)
-
-figure;
-plot(kXO(:,2))
-
-
-figure;
-hist(kXO(:,1))
+hist(kXO(J0:J,2))
 title('R3 Desorption', 'FontSize', 15)
 
 figure;
@@ -244,18 +245,18 @@ hist(kOX(J0:J,2))
 title('R2 Adsorption', 'FontSize', 15)
 
 figure;
-hist(c1(:,1))
+hist(a2chain(J0:J,1))
+% 
+% figure;
+% hist(c1(:,2))
+% 
+% figure;
+% hist(c2(:,1))
+% 
+% figure;
+% hist(c2(:,2))
 
-figure;
-hist(c1(:,2))
-
-figure;
-hist(c2(:,1))
-
-figure;
-hist(c2(:,2))
-
-
-% filename = join([temps_strings{idx_T}, 'k.mat']);
-% save(filename, 'kOX_est', "kXO_est")
-
+ 
+filename = join([temps_strings{idx_T}, 'all1.mat']);
+%save(filename, 'kOX_est', "kXO_est", 'theta_est', "y", 'epsilon_est')
+save(filename)

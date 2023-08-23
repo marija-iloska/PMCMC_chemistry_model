@@ -22,17 +22,23 @@ for i = 1 : I
         [a_proposed] = pertrnd(a_low, mu_a, a_high);
         ln_q_star_a  = logpertpdf(a_proposed, a_low, mu_a, a_high);
         ln_q_old_a  = logpertpdf(x_old(1), a_low, mu_a, a_high);
-        
+        %ln_p_star_a  = logpertpdf(a_proposed, 0.001, 0.5, a_high);
+        %ln_p_old_a  = logpertpdf(x_old(1), 0.001, 0.5, a_high);
 
         % Compute parameters for pert pdf for b
-        b_low = -a_proposed*theta_min;
-        b_high = 0.5 - a_proposed.*theta_max;
-        mu_b = (b_high + b_low)/2;
+%         b_low = -a_proposed*theta_min;
+%         b_high = 0.5 - a_proposed.*theta_max;
+%         mu_b = (b_high + b_low)/2;
 
         % Propose sample for b
-        [b_proposed] = pertrnd(b_low, mu_b, b_high);
-        ln_q_star_b  = logpertpdf(b_proposed, b_low, x_old(2), b_high);
-        ln_q_old_b  = logpertpdf(x_old(2), b_low, b_proposed, b_high);
+%         [b_proposed] = pertrnd(b_low, mu_b, b_high);
+%         ln_q_star_b  = logpertpdf(b_proposed, b_low, x_old(2), b_high);
+%         ln_q_old_b  = logpertpdf(x_old(2), b_low, b_proposed, b_high);
+
+        b_temp = betarnd(0.5, 0.5);
+        b_proposed = b_temp.*(0.5 - a_proposed*theta_max);
+        ln_q_star_b = log( betapdf(b_temp, 0.5, 0.5));
+        ln_q_old_b = log( betapdf(x_old(2)/(0.5 - x_old(1)*theta_max), 0.5, 0.5));
         
         % Store samples
         x_proposed = [a_proposed, b_proposed];
@@ -52,7 +58,12 @@ for i = 1 : I
         AR1 = sum(ln_l_star_theta - ln_l_old_theta);
 
         % LOG proposal ratio
-        AR2 = ln_q_old_b + ln_q_old_a - ln_q_star_b - ln_q_star_a;
+        if (0)
+            %AR2 = ln_q_old_b + ln_q_old_a + ln_p_star_a - ln_p_old_a - ln_q_star_b - ln_q_star_a;
+            AR2 = ln_q_old_b + ln_q_old_a  - ln_q_star_b - ln_q_star_a;
+        else
+            AR2 = ln_q_old_b - ln_q_star_b;
+        end
         
         
         % Acceptance ratio

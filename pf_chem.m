@@ -11,16 +11,19 @@ if (dat_choice == 2)
     rr = [1, 2];
     theta_mean = cov_sat*ones(1,M);
     mean_eps = eps_sat;
+    var_eps = 0.1;
 else
     rr = [2, 1];
     theta_mean = 0.1*ones(1,M);
     mean_eps = eps_exp;
+    var_eps = 0.01;
 end
 r=1;
 
+
 % Initialize particles
 theta_particles = pertrnd(theta_min, theta_mean, theta_max);
-epsilon_particles = exprnd(mean_eps, 1, M);
+epsilon_particles = normrnd(mean_eps, var_eps, 1, M); %exprnd(mean_eps, 1, M);
 theta_est(1) = mean(theta_particles);
 epsilon_est(1) = mean(epsilon_particles);
 ln_w_eps = log(ones(1,M)/M);
@@ -36,10 +39,11 @@ for t = 2:T
     % Propose particles
     theta_mean = {cov_sat*ones(1,M), a(r)*theta_particles + b(r)};
     theta_particles = pertrnd(theta_min, theta_mean{rr(r)}, theta_max);
-    epsilon_particles = exprnd(mean_eps{rr(r)}, 1,M);
+    epsilon_particles = normrnd(mean_eps{rr(r)}, var_eps, 1, M); %exprnd(mean_eps{rr(r)}, 1,M);
+
 
     % Compute epsilon weights
-    [w_cov, w_eps, theta_est(t), epsilon_particles, theta_particles] = compute_weights(y(t), epsilon_particles, theta_particles, var_A, M);
+    [ w_eps, theta_est(t), epsilon_est(t), epsilon_particles, theta_particles] = compute_weights1(y(t), epsilon_particles, theta_particles, var_A, M);
 
     % Store samples
     theta_store(t, :) = theta_particles;
@@ -47,27 +51,31 @@ for t = 2:T
 
     % Estimate
     %theta_est(t) = mean(theta_particles);
-    epsilon_est(t) = mean(epsilon_particles.*w_eps);
-    idx_eps = datasample(1:M, M, 'Weights', w_eps);
-    epsilon_particles = epsilon_particles(idx_eps);
+%     epsilon_est(t) =sum(epsilon_particles.*w_eps);
+%     idx_eps = datasample(1:M, M, 'Weights', w_eps);
+%     epsilon_particles = epsilon_particles(idx_eps);
 
     if dat_choice == 2
         if (theta_est(t) < cut_off)
             r = 2;
+            var_eps = 0.01;
         end
     else
         if (theta_est(t) > cut_off)
             r = 2;
+            var_eps = 0.1;
         end
     end
 
     
 end
 
+
+
 % Take one sample of entire Time horizon
-idx = datasample(1:M, 1, 'Weights', w_cov);
+idx = datasample(1:M, 1, 'Weights', w_eps);
 theta_sample = theta_store(:, idx);
 
-idx_eps = datasample(1:M, 1, 'Weights', w_eps);
-epsilon_sample = epsilon_store(:, idx_eps);
+%idx_eps = datasample(1:M, 1, 'Weights', w_eps);
+epsilon_sample = epsilon_store(:, idx);
 
